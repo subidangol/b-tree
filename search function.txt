@@ -1,0 +1,13 @@
+long BPlusTree::Search(Node *a, long i)
+{
+	Node * temp = root;
+
+	for (long j = 0; j < a->n; j++)
+	{
+		if (a->leaf_Node == false)
+			Search(a->childPtr[j], i);
+
+		if (a->data[j] == i)
+			return a->data[j];
+	}
+}
