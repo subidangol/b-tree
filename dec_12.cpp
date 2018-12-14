@@ -1,265 +1,147 @@
 #include <cstdlib>
-
 #include <fstream>
-
 #include <vector>
-
 #include <iostream>
-
-#include <string>
-
 #include "BPlusTree.h"
-
-#include <stdlib.h>
 
 using namespace std;
 
-
-
 int main()
-
 {
-
-
-	char filename[20], outputfilename[20] ;
-
 	BPlusTree b;
-
-	string data;
-
-	char c;
-	
-	
-	char choice;
-
-	int index_count=0;
-
-	int count=100;
-
-	string record;
-
-	char key[5];
-	
-	char newrecord_filename[20];
-	
-	bool index_set_flag=false; //index set already exist if false
-
-	fstream infile1; //to read data file
-
-	ifstream infile2; //to read index set if exists
-
-	ofstream outfile; //to write to index set
-
-	ifstream newrecord_file;
-	
-	ofstream newrecord_out;
-	
-
-	cout<<"Enter the name of the Record file: ";
-
-	cin>>filename;
-
-	infile1.open(filename);
-
-	while(infile1.fail()) //trying to read the Record datafile
-
-	{
-
-		cout<<"Invalid !!!!!!!!"<<endl;
-
-		cout<<"Enter the bloody filename with lots of data: ";
-
-		cin>>filename;
-
-		infile1.open(filename);
-
-	}
-
-	cout<<"Enter the name of the index set file: ";
-
-	cin>>outputfilename;
-
-	infile2.open(outputfilename);
-
-
-
-	if(infile2.fail())	// checking if our index set exist
-
-	{
-
-		infile2.close();
-		outfile.open(outputfilename);
-
-		index_set_flag=true;	//we need to write index set to the output
-
-	}
-
+	char filename[20];           //for data file
+	char indexfilename[20];      //for index file
+	char newfilename[20];        //for new data file
+	char choice;                 //stores the user commands
+	char key[5];                 //stores the zipcode
+	char ch;                     //get each character for new data file
+	string record;               //get the line for the data file
 	int count_data;
-	if(index_set_flag)
+	int count = 100;
+	long t;
+	bool index_set_flag = false; //index set already exist if false
+	fstream infile1;             //to read and update data file
+	ifstream infile2;            //to read index set if exists
+	ofstream outfile;            //to write to index set
+	ifstream newrecord_file;
+	ofstream newrecord_out;
+
+	cout << "Enter the name of the record file: ";
+	cin >> filename;
+	infile1.open(filename);
+	while (infile1.fail()) //trying to read the Record datafile
 	{
+		cout << "Invalid. Enter the name of the record file: ";
+		cin >> filename;
+		infile1.open(filename);
+	}
+	cout << "Enter the name of the index set file: ";
+	cin >> indexfilename;
+	infile2.open(indexfilename);
 
-		
-		getline(infile1,record);
-		outfile<<"int";
+	if (infile2.fail())	//if indexset does not exist, create a new one
+	{
+		infile2.close();
+		outfile.open(indexfilename); //new index set opened
+		index_set_flag = true; //we need to write index set to the new indexset file
+	}
 
-		while(!infile1.eof())
-
+	if (index_set_flag)
+	{
+		getline(infile1, record);
+		outfile << "int";
+		while (!infile1.eof())
 		{
+			getline(infile1, record);
 
-			
+			for (int i = 0; i < 5; i++) 
+			{ 
+				key[i] = record[i]; 
+			}
 
-			getline(infile1,record);
-			//cout<<record<<endl;
-
-			for(int i=0; i<5; i++) {key[i]=record[i];}
-			
-			cout<<key;
-
-			outfile<<"|"<<key<<count;
-			count_data=1;
-			for(int j=0; j<4; j++)
-
+			cout << key;
+			outfile << "|" << key << count;
+			count_data = 1;
+			for (int j = 0; j < 4; j++)
 			{
-				
-				getline(infile1,record);	
-				if(!infile1.eof())
+				getline(infile1, record);
+				if (!infile1.eof())
 					count_data++;
 				else
 					break;
-				
 			}
-			if(!infile1.eof())
-					count++;
-			
 
+			if (!infile1.eof())
+				count++;
 		}
-		outfile<<"|"<<endl;
+		outfile << "|" << endl;
 		outfile.close();
-		infile2.open(outputfilename);
+		infile2.open(indexfilename);
 	}
-	
-	long i, n;
 
-	bool j;
 
-	long t;
-
-	char ch;
-	
-	infile2.get(ch);     //to get int from the input file
-
+	infile2.get(ch);        //to get int from the input file
 	infile2.get(ch);		//gets '|' and ignores it.
 
-
-
-
-
-		while (!infile2.eof())		//Reads until the end of file.
-
+	while (!infile2.eof())		//Reads until the end of file.
+	{
+		infile2.get(ch);
+		while (ch != '|')		//Unless '|' is found
 		{
-
 			infile2.get(ch);
-
-			while (ch != '|')		//Unless '|' is found
-
-			{
-
-				infile2.get(ch);
-
-			}
-
-
-
-			infile2 >> t;	//Gets any integer from the file.
-
-
-
-
-
-			cout << t << endl;
-
-			cout << "Inserting the value " << t << endl;
-
-			b.Insert(t);
-
-
-
 		}
 
+		infile2 >> t;	//Gets any integer from the file.
+		cout << "Inserting the value " << t << endl;
+		b.Insert(t);
+	}
 
-
-		while (choice != 4)
-
+	while (choice != 4)
+	{
+		cout << "\nChoose from the Menu Options" << endl;
+		cout << " d -- Display \n i v -- Insert \n d v -- Delete \n 4)e -- Exit\n" << endl;
+		cin >> choice;
+		switch (choice)
 		{
+			case'd':
+				cout << "Displays the data by traversing the constructed tree\n";
+				b.Display(b, cout);	//traverses the B+ Tree
+				break;
+			case'i':
+				cout << "Enter a filename having new records \n";
+				cin >> newfilename;
+				newrecord_file.open(newfilename); //reading from the new record file
 
-			cout << "Choose from the Menu Options" << endl;
+				while (!newrecord_file.eof())
+				{
+					getline(newrecord_file, record);
+					infile1 << record;
+					for (int i = 0; i < 5; i++) 
+						key[i] = record[i]; 
 
-			cout << " 1) Traverse \n 2) Insert \n 3) Delete \n 4) Exit" << endl;
-
-			cin >> choice;
-
-			switch (choice)
-
-			{
-
-				case'1':
-
-					cout << "traversal of constructed tree\n";
-
-					b.Display(b, cout);	//traverses the B+ Tree
-
-					break;
-
-				case'2':
-					cout << "Enter a filename having new records \n";
-					cin>>newrecord_filename;
-					//cin >> t;	// it takes long values
-					
-					newrecord_file.open(newrecord_filename);//reading from the new record file
-					//infile1.close();
-					//infile1.open(filename);//updating our record file
-					while(!newrecord_file.eof())
+					if (count_data == 5)
 					{
-						getline(newrecord_file,record);
-						
-						infile1<<record;
-						
-						for(int i=0; i<5; i++) {key[i]=record[i];}
-						if(count_data==5)
-						{	
-							count++;
-							t=atol(key);
-							t=t*1000+count;
-							b.Insert(t);
-						}
-						else
-							count_data++;
+						count++;
+						t = atol(key) * 1000 + count;
+						b.Insert(t);
 					}
-				
-					break;
+					else
+						count_data++;
+				}
+				break;
 
-				case'3': /*delete*/
+			case'4': /*Delete after a value has been entered*/
+				printf("Enter the value to be deleted");
+				cin >> t;
+				b.Delete(t);
+				break;
 
-					printf("enter the value to be deleted");
+			case'4': /*Exit from the program*/
+				printf("Exit");  
+				break;
 
-					cin >> t;
-
-					b.Delete(t);
-
-					break;
-
-				//case'4': /*Exit*/break;
-
-				case'4': printf("Exit"); return 0; break;
-
-				default: break;
-
-			}
-
+			default: break;
 		}
-		
-
-
+	}
 	return 0;
-
 }
