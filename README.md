@@ -1,3 +1,0 @@
-# bplustree
-
-CSCI 331
